@@ -23,6 +23,14 @@ class UsersController < ApplicationController
   def edit
     @user = User.find_by(id: params[:id])
   end
+
+  def update
+    @user = User.find_by(id: params[:id])
+    if @user.update_attributes(user_params)
+    else
+      render 'edit'
+    end
+  end
   
   private
   
