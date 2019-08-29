@@ -19,6 +19,10 @@ class UsersController < ApplicationController
       render 'new'
     end
   end
+
+  def edit
+    @user = User.find_by(id: params[:id])
+  end
   
   private
   
