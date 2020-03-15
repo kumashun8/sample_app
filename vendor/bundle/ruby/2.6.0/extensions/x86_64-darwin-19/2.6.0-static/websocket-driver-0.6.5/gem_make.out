@@ -1,0 +1,15 @@
+current directory: /Users/hayato_okuma/workspace/sample_app/vendor/bundle/ruby/2.6.0/gems/websocket-driver-0.6.5/ext/websocket-driver
+/Users/hayato_okuma/.rbenv/versions/2.6.3/bin/ruby -I /Users/hayato_okuma/.rbenv/versions/2.6.3/lib/ruby/site_ruby/2.6.0 -r ./siteconf20200315-43154-qjsw1z.rb extconf.rb
+creating Makefile
+
+current directory: /Users/hayato_okuma/workspace/sample_app/vendor/bundle/ruby/2.6.0/gems/websocket-driver-0.6.5/ext/websocket-driver
+make "DESTDIR=" clean
+
+current directory: /Users/hayato_okuma/workspace/sample_app/vendor/bundle/ruby/2.6.0/gems/websocket-driver-0.6.5/ext/websocket-driver
+make "DESTDIR="
+compiling websocket_mask.c
+linking shared-object websocket_mask.bundle
+
+current directory: /Users/hayato_okuma/workspace/sample_app/vendor/bundle/ruby/2.6.0/gems/websocket-driver-0.6.5/ext/websocket-driver
+make "DESTDIR=" install
+/usr/bin/install -c -m 0755 websocket_mask.bundle ./.gem.20200315-43154-1t9f59x
