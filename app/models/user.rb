@@ -16,7 +16,7 @@ class User < ApplicationRecord
   def self.digest(string)
     cost =
       if ActiveModel::SecurePassword.min_cost
-        Crypt::Engine::MIN_COST
+        BCrypt::Engine::MIN_COST
       else
         BCrypt::Engine.cost
       end
