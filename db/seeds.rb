@@ -1,17 +1,21 @@
-User.create!(
-  name: "Example User",
-  email: "example@hoge.com",
-  password: "password",
-  password_confirmation: "password",
-  admin: true)
+# frozen_string_literal: true
 
-99.times do |n|
+User.create!(
+  name: 'Example User',
+  email: 'example@hoge.com',
+  password: 'password',
+  password_confirmation: 'password',
+  admin: true
+)
+
+99.times do |_n|
   name = Faker::Name.name
-  email = "example-#{n+1}@hoge.com"
-  password = "password"
+  email = 'example-#{n+1}@hoge.com'
+  password = 'password'
   User.create(
     name: name,
     email: email,
     password: password,
-    password_confirmation: password)
+    password_confirmation: password
+  )
 end

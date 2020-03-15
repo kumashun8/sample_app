@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'test_helper'
 
 class UsersEditTest < ActionDispatch::IntegrationTest
@@ -5,38 +7,38 @@ class UsersEditTest < ActionDispatch::IntegrationTest
     @user = users(:michael)
   end
 
-  test "unsuccessful edit" do
+  test 'unsuccessful edit' do
     get edit_user_path(@user)
     log_in_as(@user)
-    patch user_path(@user), 
-      params: { 
-        user: { 
-          name:  "",
-          email: "foo@invalid",
-          password: "foo",
-          password_confirmation: "bar" 
-        } 
-      }
-    assert_select "div.alert", "The form contains 4 errors."
+    patch user_path(@user),
+          params: {
+            user: {
+              name: '',
+              email: 'foo@invalid',
+              password: 'foo',
+              password_confirmation: 'bar'
+            }
+          }
+    assert_select 'div.alert', 'The form contains 4 errors.'
     assert_template 'users/edit'
   end
 
-  test "successful edit with friendly following" do
+  test 'successful edit with friendly following' do
     get edit_user_path(@user)
-    assert_equal session[:forwarding_url], request.original_url 
+    assert_equal session[:forwarding_url], request.original_url
     log_in_as(@user)
     assert_redirected_to edit_user_path(@user)
-    name = "Foo Bar"
-    email = "foo@bar.com"
-    patch user_path(@user), 
-      params: { 
-        user: { 
-          name:  name,
-          email: email,
-          password: "",
-          password_confirmation: "" 
-        } 
-      }
+    name = 'Foo Bar'
+    email = 'foo@bar.com'
+    patch user_path(@user),
+          params: {
+            user: {
+              name: name,
+              email: email,
+              password: '',
+              password_confirmation: ''
+            }
+          }
     assert_not flash.empty?
     assert_redirected_to @user
     assert_equal session[:forwarding_url], nil
