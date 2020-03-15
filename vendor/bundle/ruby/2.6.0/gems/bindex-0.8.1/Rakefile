@@ -1,7 +1,7 @@
 require 'rake/testtask'
-require "rake/clean"
+require 'rake/clean'
 
-CLOBBER.include "pkg"
+CLOBBER.include 'pkg'
 
 Bundler::GemHelper.install_tasks name: ENV.fetch('GEM_NAME', 'skiptrace')
 
@@ -20,7 +20,7 @@ when 'ruby'
     ext.lib_dir = 'lib/skiptrace/internal'
   end
 
-  task default: [:clean, :compile, :test]
+  task default: %i[clean compile test]
 when 'jruby'
   require 'rake/javaextensiontask'
 
@@ -31,7 +31,7 @@ when 'jruby'
     ext.target_version = '1.8'
   end
 
-  task default: [:clean, :compile, :test]
+  task default: %i[clean compile test]
 else
   task default: [:test]
 end

@@ -6,7 +6,7 @@ subcommand = args.first if /^\w/ === args.first
 subcommand = nil if subcommand && File.exist?(subcommand)
 args.delete subcommand
 
-def option? *options
+def option?(*options)
   !($options & options).empty?
 end
 
@@ -15,39 +15,39 @@ def tty?
 end
 
 def version
-  puts <<-USAGE
-CodeRay #{CodeRay::VERSION}
+  puts <<~USAGE
+    CodeRay #{CodeRay::VERSION}
   USAGE
 end
 
 def help
-  puts <<-HELP
-This is CodeRay #{CodeRay::VERSION}, a syntax highlighting tool for selected languages.
+  puts <<~HELP
+    This is CodeRay #{CodeRay::VERSION}, a syntax highlighting tool for selected languages.
 
-usage:
-  coderay [-language] [input] [-format] [output]
-  
-defaults:
-  language   detect from input file name or shebang; fall back to plain text
-  input      STDIN
-  format     detect from output file name or use terminal; fall back to HTML
-  output     STDOUT
+    usage:
+      coderay [-language] [input] [-format] [output]
 
-common:
-  coderay file.rb                      # highlight file to terminal
-  coderay file.rb -page > file.html    # highlight file to HTML page
-  coderay file.rb -div > file.html     # highlight file to HTML snippet
+    defaults:
+      language   detect from input file name or shebang; fall back to plain text
+      input      STDIN
+      format     detect from output file name or use terminal; fall back to HTML
+      output     STDOUT
 
-configure output:
-  coderay file.py output.json          # output tokens as JSON
-  coderay file.py -loc                 # count lines of code in Python file
+    common:
+      coderay file.rb                      # highlight file to terminal
+      coderay file.rb -page > file.html    # highlight file to HTML page
+      coderay file.rb -div > file.html     # highlight file to HTML snippet
 
-configure input:
-  coderay -python file                 # specify the input language
-  coderay -ruby                        # take input from STDIN
+    configure output:
+      coderay file.py output.json          # output tokens as JSON
+      coderay file.py -loc                 # count lines of code in Python file
 
-more:
-  coderay stylesheet [style]           # print CSS stylesheet
+    configure input:
+      coderay -python file                 # specify the input language
+      coderay -ruby                        # take input from STDIN
+
+    more:
+      coderay stylesheet [style]           # print CSS stylesheet
   HELP
 end
 
@@ -56,7 +56,7 @@ def commands
   general:
     highlight   code highlighting (default command, optional)
     stylesheet  print the CSS stylesheet with the given name (aliases: style, css)
-  
+
   about:
     list [of]   list all available plugins (or just the scanners|encoders|styles|filetypes)
     commands    print this list
@@ -65,31 +65,27 @@ def commands
   COMMANDS
 end
 
-def print_list_of plugin_host
+def print_list_of(plugin_host)
   plugins = plugin_host.all_plugins.map do |plugin|
     info = "  #{plugin.plugin_id}: #{plugin.title}"
-    
-    aliases = (plugin.aliases - [:default]).map { |key| "-#{key}" }.sort_by { |key| key.size }
+
+    aliases = (plugin.aliases - [:default]).map { |key| "-#{key}" }.sort_by(&:size)
     if plugin.respond_to?(:file_extension) || !aliases.empty?
       additional_info = []
       additional_info << aliases.join(', ') unless aliases.empty?
       info << " (#{additional_info.join('; ')})"
     end
-    
+
     info << '  <-- default' if plugin.aliases.include? :default
-    
+
     info
   end
   puts plugins.sort
 end
 
-if option? '-v', '--version'
-  version
-end
+version if option? '-v', '--version'
 
-if option? '-h', '--help'
-  help
-end
+help if option? '-h', '--help'
 
 case subcommand
 when 'highlight', nil
@@ -119,25 +115,23 @@ when 'highlight', nil
       puts "Unknown parameter order: #{args.join ' '}, expected: [-language] [input] [-format] [output]"
       exit 1
     end
-    
-    if input_file
-      input_lang ||= CodeRay::FileType.fetch input_file, :text, true
-    end
-    
-    if output_file
-      output_format ||= CodeRay::FileType[output_file] || :plain
-    else
-      output_format ||= :terminal
-    end
-    
+
+    input_lang ||= CodeRay::FileType.fetch input_file, :text, true if input_file
+
+    output_format ||= if output_file
+                        CodeRay::FileType[output_file] || :plain
+                      else
+                        :terminal
+                      end
+
     output_format = :page if output_format.to_s == 'html'
-    
-    if input_file
-      input = File.read input_file
-    else
-      input = $stdin.read
-    end
-    
+
+    input = if input_file
+              File.read input_file
+            else
+              $stdin.read
+            end
+
     begin
       file =
         if output_file
@@ -145,55 +139,53 @@ when 'highlight', nil
         else
           $stdout
         end
-      CodeRay.encode(input, input_lang, output_format, :out => file)
+      CodeRay.encode(input, input_lang, output_format, out: file)
       file.puts
-    rescue CodeRay::PluginHost::PluginNotFound => boom
+    rescue CodeRay::PluginHost::PluginNotFound => e
       $stdout = $stderr
-      if boom.message[/CodeRay::(\w+)s could not load plugin :?(.*?): /]
-        puts "I don't know the #$1 \"#$2\"."
+      if e.message[/CodeRay::(\w+)s could not load plugin :?(.*?): /]
+        puts "I don't know the #{Regexp.last_match(1)} \"#{Regexp.last_match(2)}\"."
       else
-        puts boom.message
+        puts e.message
       end
       # puts "I don't know this plugin: #{boom.message[/Could not load plugin (.*?): /, 1]}."
     rescue CodeRay::Scanners::Scanner::ScanError
-      # this is sometimes raised by pagers; ignore
+    # this is sometimes raised by pagers; ignore
     # FIXME: rescue Errno::EPIPE
     ensure
       file.close if output_file
     end
   end
 when 'li', 'list'
-  arg = args.first && args.first.downcase
+  arg = args.first&.downcase
   if [nil, 's', 'sc', 'scanner', 'scanners'].include? arg
     puts 'input languages (Scanners):'
     print_list_of CodeRay::Scanners
   end
-  
+
   if [nil, 'e', 'en', 'enc', 'encoder', 'encoders'].include? arg
     puts 'output formats (Encoders):'
     print_list_of CodeRay::Encoders
   end
-  
+
   if [nil, 'st', 'style', 'styles'].include? arg
     puts 'CSS themes for HTML output (Styles):'
     print_list_of CodeRay::Styles
   end
-  
+
   if [nil, 'f', 'ft', 'file', 'filetype', 'filetypes'].include? arg
     puts 'recognized file types:'
-    
+
     filetypes = Hash.new { |h, k| h[k] = [] }
-    CodeRay::FileType::TypeFromExt.inject filetypes do |types, (ext, type)|
+    CodeRay::FileType::TypeFromExt.each_with_object filetypes do |(ext, type), types|
       types[type.to_s] << ".#{ext}"
-      types
     end
-    CodeRay::FileType::TypeFromName.inject filetypes do |types, (name, type)|
+    CodeRay::FileType::TypeFromName.each_with_object filetypes do |(name, type), types|
       types[type.to_s] << name
-      types
     end
-    
+
     filetypes.sort.each do |type, exts|
-      puts "  #{type}: #{exts.sort_by { |ext| ext.size }.join(', ')}"
+      puts "  #{type}: #{exts.sort_by(&:size).join(', ')}"
     end
   end
 when 'stylesheet', 'style', 'css'

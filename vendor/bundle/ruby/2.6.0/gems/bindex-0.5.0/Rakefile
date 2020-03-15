@@ -16,7 +16,7 @@ when 'ruby'
     ext.lib_dir = 'lib/bindex'
   end
 
-  task default: [:clean, :compile, :test]
+  task default: %i[clean compile test]
 when 'jruby'
   require 'rake/javaextensiontask'
 
@@ -25,7 +25,7 @@ when 'jruby'
     ext.lib_dir = 'lib/bindex'
   end
 
-  task default: [:clean, :compile, :test]
+  task default: %i[clean compile test]
 else
   task default: [:test]
 end

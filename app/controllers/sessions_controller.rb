@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # ユーザーのセッション情報に関するコントローラー
 class SessionsController < ApplicationController
   def create

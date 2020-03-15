@@ -1,32 +1,32 @@
 #!/usr/bin/env ruby
 
-require "pathname"
+require 'pathname'
 
 class GuardReloader
   class Config
     def using_rubygems?
-      ENV["RUBYGEMS_GEMDEPS"]
+      ENV['RUBYGEMS_GEMDEPS']
     end
 
     def setup_rubygems_for_deps
-      require "rubygems"
+      require 'rubygems'
     end
 
     def current_bundler_gemfile
-      ENV["BUNDLE_GEMFILE"]
+      ENV['BUNDLE_GEMFILE']
     end
 
     def using_bundler?
-      ENV["BUNDLE_GEMFILE"]
+      ENV['BUNDLE_GEMFILE']
     end
 
     def setup_bundler_env(gemfile)
-      ENV["BUNDLE_GEMFILE"] = gemfile
+      ENV['BUNDLE_GEMFILE'] = gemfile
     end
 
     def setup_bundler
-      require "rubygems"
-      require "bundler/setup"
+      require 'rubygems'
+      require 'bundler/setup'
     end
 
     def program_path
@@ -66,7 +66,7 @@ class GuardReloader
     end
 
     def guard_core_path
-      Gem.bin_path("guard", "_guard-core")
+      Gem.bin_path('guard', '_guard-core')
     end
   end
 
@@ -80,21 +80,21 @@ class GuardReloader
     return config.setup_rubygems_for_deps if config.using_rubygems?
 
     # No dependency management detected - check if binstubbed by bundler
-    relative_to_binstub = config.program_path + "../../Gemfile"
+    relative_to_binstub = config.program_path + '../../Gemfile'
     if config.exist?(relative_to_binstub)
       config.setup_bundler_env(relative_to_binstub.to_s)
       config.setup_bundler
       return
     end
 
-    unless config.exist?(Pathname("Gemfile"))
+    unless config.exist?(Pathname('Gemfile'))
       # Running guard with bare ruby here - it's up to the user
       # to setup/install missing deps
       return
     end
 
-    STDERR.puts "Warning: you have a Gemfile, but you're not using"\
-      " bundler or RUBYGEMS_GEMDEPS"
+    warn "Warning: you have a Gemfile, but you're not using"\
+      ' bundler or RUBYGEMS_GEMDEPS'
   end
 
   def auto_restart
@@ -107,7 +107,7 @@ class GuardReloader
   end
 end
 
-unless ENV["GUARD_SPECS_RUNNING"]
+unless ENV['GUARD_SPECS_RUNNING']
   config = GuardReloader::Config.new
   reloader = GuardReloader.new(config)
   reloader.setup

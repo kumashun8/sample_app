@@ -7,34 +7,34 @@ require 'rdoc/task'
 require 'benchmark'
 
 CLEAN.include(
-  "tmp",
-  "lib/1.8",
-  "lib/1.9",
-  "lib/2.0",
-  "lib/2.1",
-  "lib/2.2",
-  "lib/2.3",
-  "lib/2.4",
-  "lib/2.5",
-  "lib/bcrypt_ext.jar",
-  "lib/bcrypt_ext.so"
+  'tmp',
+  'lib/1.8',
+  'lib/1.9',
+  'lib/2.0',
+  'lib/2.1',
+  'lib/2.2',
+  'lib/2.3',
+  'lib/2.4',
+  'lib/2.5',
+  'lib/bcrypt_ext.jar',
+  'lib/bcrypt_ext.so'
 )
 CLOBBER.include(
-  "doc",
-  "pkg"
+  'doc',
+  'pkg'
 )
 
-GEMSPEC = Gem::Specification.load("bcrypt.gemspec")
+GEMSPEC = Gem::Specification.load('bcrypt.gemspec')
 
-task :default => [:compile, :spec]
+task default: %i[compile spec]
 
-desc "Run all specs"
+desc 'Run all specs'
 RSpec::Core::RakeTask.new do |t|
   t.pattern = 'spec/**/*_spec.rb'
   t.ruby_opts = '-w'
 end
 
-desc "Run all specs, with coverage testing"
+desc 'Run all specs, with coverage testing'
 RSpec::Core::RakeTask.new(:rcov) do |t|
   t.pattern = 'spec/**/*_spec.rb'
   t.rcov = true
@@ -60,38 +60,36 @@ if RUBY_PLATFORM =~ /java/
     ext.ext_dir = 'ext/jruby'
   end
 else
-  Rake::ExtensionTask.new("bcrypt_ext", GEMSPEC) do |ext|
+  Rake::ExtensionTask.new('bcrypt_ext', GEMSPEC) do |ext|
     ext.ext_dir = 'ext/mri'
     ext.cross_compile = true
-    ext.cross_platform = ['x86-mingw32', 'x64-mingw32']
+    ext.cross_platform = %w[x86-mingw32 x64-mingw32]
   end
 
   ENV['RUBY_CC_VERSION'].to_s.split(':').each do |ruby_version|
     platforms = {
-      "x86-mingw32" => "i686-w64-mingw32",
-      "x64-mingw32" => "x86_64-w64-mingw32"
+      'x86-mingw32' => 'i686-w64-mingw32',
+      'x64-mingw32' => 'x86_64-w64-mingw32'
     }
     platforms.each do |platform, prefix|
-      task "copy:bcrypt_ext:#{platform}:#{ruby_version}" do |t|
+      task "copy:bcrypt_ext:#{platform}:#{ruby_version}" do |_t|
         %w[lib tmp/#{platform}/stage/lib].each do |dir|
           so_file = "#{dir}/#{ruby_version[/^\d+\.\d+/]}/bcrypt_ext.so"
-          if File.exists?(so_file)
-            sh "#{prefix}-strip -S #{so_file}"
-          end
+          sh "#{prefix}-strip -S #{so_file}" if File.exist?(so_file)
         end
       end
     end
   end
 end
 
-desc "Run a set of benchmarks on the compiled extension."
+desc 'Run a set of benchmarks on the compiled extension.'
 task :benchmark do
   TESTS = 100
-  TEST_PWD = "this is a test"
-  require File.expand_path(File.join(File.dirname(__FILE__), "lib", "bcrypt"))
+  TEST_PWD = 'this is a test'.freeze
+  require File.expand_path(File.join(File.dirname(__FILE__), 'lib', 'bcrypt'))
   Benchmark.bmbm do |results|
     4.upto(10) do |n|
-      results.report("cost #{n}:") { TESTS.times { BCrypt::Password.create(TEST_PWD, :cost => n) } }
+      results.report("cost #{n}:") { TESTS.times { BCrypt::Password.create(TEST_PWD, cost: n) } }
     end
   end
 end
