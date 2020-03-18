@@ -6,16 +6,18 @@ gem 'bcrypt', '3.1.12'
 gem 'bootstrap-sass', '3.3.7'
 gem 'bootstrap-will_paginate', '1.0.0'
 gem 'coffee-rails', '4.2.2'
+gem 'carrierwave', '1.2.2'
 gem 'faker', '1.7.3'
 gem 'jbuilder',     '2.7.0'
 gem 'jquery-rails', '4.3.1'
+gem 'mini_magick', '4.7.0'
 gem 'puma', '3.9.1'
 gem 'rails', '5.1.6'
 gem 'sass-rails', '5.0.6'
 gem 'turbolinks', '5.0.1'
 gem 'uglifier', '3.2.0'
-gem 'will_paginate', '3.1.6'
 gem 'pry-byebug'
+gem 'will_paginate', '3.1.6'
 
 group :development, :test do
   gem 'byebug', '9.0.6', platform: :mri
@@ -42,4 +44,5 @@ end
 
 group :production do
   gem 'pg', '0.20.0'
+  gem 'fog', '1.42'
 end
